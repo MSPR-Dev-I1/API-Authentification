@@ -1,0 +1,43 @@
+name: Python CI
+
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout project
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install Dependencies
+        run: |
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+      - name: Run pytest
+        working-directory: ./app
+        run: |
+          python3 -m pytest
+      - name: Run coverage
+        working-directory: ./app
+        run: |
+          coverage run -m pytest && coverage report && coverage xml
+      - name: Get Cover
+        uses: orgoro/coverage@v3
+        with:
+          coverageFile: app/coverage.xml
+          thresholdModified: 0.95
+          thresholdNew: 0.95
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Analysing the code quality with pylint
+        run: |
+          pylint app
+      
+      - name: Analysing the code security with Bandit
+        run: |
+          bandit -r . -s B101
