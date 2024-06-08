@@ -1,11 +1,12 @@
-from fastapi import APIRouter, HTTPException
-from app.database import test_connection
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.orm import Session
+from app.database.connexion import test_connection,get_db
 
 router = APIRouter()
 
 
 @router.get("")
-async def test_database():
+async def hello_mate(db: Session = Depends(get_db)):
     """
         This API tests the connection with the database and returns a simple message.
     """
