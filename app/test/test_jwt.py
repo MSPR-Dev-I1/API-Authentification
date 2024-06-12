@@ -6,7 +6,7 @@ import datetime
 
 @patch.dict(os.environ, {'JWT_KEY': 'test_secret_key'})
 def test_encode_jwt():
-    from app.token.token import encode_jwt
+    from app.tokken.tokken import encode_jwt
 
     access_key_list = ['key1', 'key2']
 
@@ -19,7 +19,7 @@ def test_encode_jwt():
 patch.dict(os.environ, {'JWT_KEY': 'test_secret_key'})
 @patch('jwt.decode')
 def test_verify_access_success(mock_decode):
-    from app.token.token import verify_access
+    from app.tokken.tokken import verify_access
 
     # Mock payload returned by jwt.decode
     mock_decode.return_value = {
@@ -38,7 +38,7 @@ def test_verify_access_success(mock_decode):
 @patch.dict(os.environ, {'JWT_KEY': 'test_secret_key'})
 @patch('jwt.decode')
 def test_verify_access_failure(mock_decode):
-    from app.token.token import verify_access
+    from app.tokken.tokken import verify_access
 
     # Mock payload returned by jwt.decode
     mock_decode.return_value = {
@@ -57,7 +57,7 @@ def test_verify_access_failure(mock_decode):
 @patch.dict(os.environ, {'JWT_KEY': 'test_secret_key'})
 @patch('jwt.decode')
 def test_verify_access_empty_list(mock_decode):
-    from app.token.token import verify_access
+    from app.tokken.tokken import verify_access
 
     # Mock payload returned by jwt.decode
     mock_decode.return_value = {
@@ -76,7 +76,7 @@ def test_verify_access_empty_list(mock_decode):
 @patch.dict(os.environ, {'JWT_KEY': 'test_secret_key'})
 @patch('jwt.decode')
 def test_verify_access_no_accesses_key(mock_decode):
-    from app.token.token import verify_access
+    from app.tokken.tokken import verify_access
 
     # Mock payload returned by jwt.decode without 'accesses' key
     mock_decode.return_value = {
@@ -93,7 +93,7 @@ def test_verify_access_no_accesses_key(mock_decode):
     assert result is False
 
 
-from app.token.token import verify_validity
+from app.tokken.tokken import verify_validity
 
 @patch.dict('os.environ', {'JWT_KEY': 'test_secret_key'})
 @patch('jwt.decode')
