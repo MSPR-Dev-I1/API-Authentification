@@ -1,12 +1,14 @@
-import pytest
-from fastapi.testclient import TestClient
 from unittest.mock import MagicMock
+from fastapi.testclient import TestClient
 from app.main import app
 from app.database.connexion import get_db
 
 client = TestClient(app)
 
 def override_get_db():
+    """
+        Mock the database connexion
+    """
     db = MagicMock()
     yield db
 

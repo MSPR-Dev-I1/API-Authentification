@@ -4,7 +4,7 @@ from app.database.connexion import test_connection,get_db
 
 router = APIRouter()
 
-
+# pylint: disable=unused-argument
 @router.get("")
 async def hello_mate(db: Session = Depends(get_db)):
     """
