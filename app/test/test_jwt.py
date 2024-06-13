@@ -3,14 +3,19 @@ import jwt
 from unittest.mock import patch
 import os
 import datetime
+import importlib
 
 @patch.dict(os.environ, {'JWT_KEY': 'test_secret_key'})
 def test_encode_jwt():
-    from app.tokken.tokken import encode_jwt
+    import app.tokken.tokken
+    importlib.reload(app.tokken.tokken)
 
     access_key_list = ['key1', 'key2']
-
-    token = encode_jwt(access_key_list)
+    jwt_key = os.getenv("JWT_KEY")
+    print("jwt_key")
+    print(jwt_key)
+    print("--------------------------------------------------------------------------------")
+    token = app.tokken.tokken.encode_jwt(access_key_list)
 
     decoded_payload = jwt.decode(token, 'test_secret_key', algorithms=['HS512'],options={'verify_signature':False})
 
