@@ -19,17 +19,17 @@ jobs:
             python -m pip install --upgrade pip
             pip install -r requirements.txt
       - name: Run pytest
-        working-directory: .
+        working-directory: ./app
         run: |
           python3 -m pytest
       - name: Run coverage
-        working-directory: .
+        working-directory: ./app
         run: |
           coverage run -m pytest && coverage report && coverage xml
       - name: Get Cover
         uses: orgoro/coverage@v3
         with:
-          coverageFile: coverage.xml
+          coverageFile: app/coverage.xml
           thresholdModified: 0.95
           thresholdNew: 0.95
           token: ${{ secrets.GITHUB_TOKEN }}
