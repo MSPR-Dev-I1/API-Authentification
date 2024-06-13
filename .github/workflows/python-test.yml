@@ -29,7 +29,7 @@ jobs:
       - name: Get Cover
         uses: orgoro/coverage@v3
         with:
-          coverageFile: app/coverage.xml
+          coverageFile: coverage.xml
           thresholdModified: 0.95
           thresholdNew: 0.95
           token: ${{ secrets.GITHUB_TOKEN }}
