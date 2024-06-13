@@ -30,8 +30,7 @@ jobs:
         uses: orgoro/coverage@v3
         with:
           coverageFile: app/coverage.xml
-          thresholdModified: 0.95
-          thresholdNew: 0.95
+          thresholdAll: 0.95
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Analysing the code quality with pylint
