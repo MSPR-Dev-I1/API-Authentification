@@ -1,87 +1,117 @@
 from sqlalchemy import inspect
 from sqlalchemy.orm import Session
 from app.database.premier_schema import Utilisateur, UtilisateurClient, Role, Access
-from app.database.connexion import get_db
 
 # Tooling functions
-def create(entity):
-    db = get_db()
+def create(db:Session,entity):
+    """
+        Create an entity in the session and database
+    """
     db.add(entity)
     db.commit()
     db.refresh(entity)
-    db.close()
     return entity
 
-def get_entity_by_key(entity_class, pk_value):
-    db = get_db()
+def get_entity_by_key(db:Session,entity_class, pk_value):
+    """
+        Find an entity with a single primary key
+        Return None if no entity is found
+    """
     inspector = inspect(db.bind)
     table_name = entity_class.__tablename__
-    key_columns = inspector.get_pk_constraint(table_name)['constrained_columns'][0]
+    key_columns = inspector.get_pk_constraint(table_name)['constrained_columns']
     if len(key_columns)> 1:
-        raise ValueError("""The function get_entity_by_key cannot 
+        raise ValueError("""The function get_entity_by_key cannot
 find an entity intance when the model has multiple primary keys""")
     entity = db.query(entity_class).filter_by(**{key_columns[0]: pk_value}).one_or_none()
-    db.close()
     return entity
 
 # Create functions
-def create_utilisateur(role:Role):
+def create_utilisateur(db:Session,role:Role):
+    """
+        Create an user
+    """
     utilisateur = Utilisateur(role=role)
-    return create(utilisateur)
+    return create(db,utilisateur)
 
-def create_utilisateur_client(utilisateur: Utilisateur):
+def create_utilisateur_client(db:Session,utilisateur: Utilisateur):
+    """
+        Create a client
+    """
     utilisateur_client = UtilisateurClient(utilisateur=utilisateur)
-    return create(utilisateur_client)
+    return create(db,utilisateur_client)
 
-def create_role(name:str,accesses:list):
+def create_role(db:Session,name:str,accesses:list):
+    """
+        Create a role
+    """
     if not all(isinstance(obj, (Access)) for obj in accesses):
         raise TypeError("A role needs a list of Access to be created")
     if len(name)>100:
         raise ValueError("A role name should not be longer than 100 characters")
     role = Role(nom=name,accesses=accesses)
-    return create(role)
+    return create(db,role)
 
-def create_access(service_key: str):
+def create_access(db:Session,service_key: str):
+    """
+        Create an access
+    """
     if len(service_key)>250:
         raise ValueError("A service key should not be longer than 250 characters")
     access = Access(cle_de_service=service_key)
-    return create(access)
+    return create(db,access)
 
 # Read functions
-def get_utilisateur(utilisateur_id: int):
-    return get_entity_by_key(Utilisateur,utilisateur_id)
+def get_utilisateur(db:Session,utilisateur_id: int):
+    """
+        Find an user with its id
+    """
+    return get_entity_by_key(db,Utilisateur,utilisateur_id)
 
-def get_utilisateur_client(utilisateur_client_id: int):
-    return get_entity_by_key(UtilisateurClient,utilisateur_client_id)
+def get_utilisateur_client(db:Session,utilisateur_client_id: int):
+    """
+       Find a client with its id 
+    """
+    return get_entity_by_key(db,UtilisateurClient,utilisateur_client_id)
 
-def get_role(role_id: int):
-    return get_entity_by_key(Role,role_id)
+def get_role(db:Session,role_id: int):
+    """
+        Find a role with its id
+    """
+    return get_entity_by_key(db,Role,role_id)
 
-def get_access(access_id: int):
-    return get_entity_by_key(Access,access_id)
+def get_access(db:Session,access_id: int):
+    """
+        Find an access with its id
+    """
+    return get_entity_by_key(db,Access,access_id)
 
 # Update functions
-def update_utilisateur(utilisateur_id: int, role: Role):
-    utilisateur: Utilisateur = get_utilisateur(utilisateur_id)
-    db = get_db()
+def update_utilisateur(db:Session,utilisateur_id: int, role: Role):
+    """
+        Update an user
+    """
+    utilisateur: Utilisateur = get_utilisateur(db,utilisateur_id)
     utilisateur.role=role
     db.commit()
     db.refresh(utilisateur)
-    db.close()
     return utilisateur
 
-def update_utilisateur_client(utilisateur_client_id: int, utilisateur: Utilisateur):
-    utilisateur_client: UtilisateurClient = get_utilisateur_client(utilisateur_client_id)
-    db = get_db()
+def update_utilisateur_client(db:Session,utilisateur_client_id: int, utilisateur: Utilisateur):
+    """
+        Update a client
+    """
+    utilisateur_client: UtilisateurClient = get_utilisateur_client(db,utilisateur_client_id)
     utilisateur_client.utilisateur=utilisateur
     db.commit()
     db.refresh(utilisateur)
-    db.close()
     return utilisateur_client
 
-def update_role(role_id: int, name:str=None, accesses:list = None):
-    role:Role = get_role(role_id)
-    db = get_db()
+def update_role(db:Session,role_id: int, name:str=None, accesses:list = None):
+    """
+       Update a role 
+    """
+    role:Role = get_role(db,role_id)
     if name is not None:
         if len(name)>100:
             raise ValueError("A role name should not be longer than 100 characters")
@@ -92,44 +122,53 @@ def update_role(role_id: int, name:str=None, accesses:list = None):
         role.accesses = accesses
     db.commit()
     db.refresh(role)
-    db.close()
     return role
 
-def update_access(access_id: int, service_key: str):
+def update_access(db:Session,access_id: int, service_key: str):
+    """
+        Update an access
+    """
     if len(service_key)>250:
         raise ValueError("A service key should not be longer than 250 characters")
-    access:Access = get_access(access_id)
-    db = get_db()
+    access:Access = get_access(db,access_id)
     access.cle_de_service=service_key
     db.commit()
     db.refresh(access)
     return access
 
 # Delete functions
-def delete_utilisateur(utilisateur_id: int):
-    utilisateur: Utilisateur = get_utilisateur(utilisateur_id)
-    db = get_db()
+def delete_utilisateur(db:Session,utilisateur_id: int):
+    """
+        Delete an user
+    """
+    utilisateur: Utilisateur = get_utilisateur(db,utilisateur_id)
     db.delete(utilisateur)
     db.commit()
     return utilisateur
 
-def delete_utilisateur_client(utilisateur_client_id: int):
-    utilisateur_client: UtilisateurClient = get_utilisateur_client(utilisateur_client_id)
-    db = get_db()
+def delete_utilisateur_client(db:Session,utilisateur_client_id: int):
+    """
+        Delete a client
+    """
+    utilisateur_client: UtilisateurClient = get_utilisateur_client(db,utilisateur_client_id)
     db.delete(utilisateur_client)
     db.commit()
     return utilisateur_client
 
-def delete_role(role_id: int):
-    role:Role = get_role(role_id)
-    db = get_db()
+def delete_role(db:Session,role_id: int):
+    """
+        Delete a role
+    """
+    role:Role = get_role(db,role_id)
     db.delete(role)
     db.commit()
     return role
 
-def delete_access(access_id: int):
-    access:Access = get_access(access_id)
-    db = get_db()
+def delete_access(db:Session,access_id: int):
+    """
+       Delete an access 
+    """
+    access:Access = get_access(db,access_id)
     db.delete(access)
     db.commit()
     return access
