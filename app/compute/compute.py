@@ -1,6 +1,9 @@
 from sqlalchemy import inspect
 from sqlalchemy.orm import Session
-from app.database.premier_schema import Utilisateur, UtilisateurClient, Role, Access
+from app.database.premier_schema import (
+    Utilisateur, UtilisateurClient, Role,
+    Access, DeactivatedToken
+)
 
 # Tooling functions
 def create(db:Session,entity):
@@ -61,6 +64,18 @@ def create_access(db:Session,service_key: str):
     access = Access(cle_de_service=service_key)
     return create(db,access)
 
+def create_deactivated_token(db:Session,token: str):
+    """
+        Create an access
+    """
+    if len(token)>250:
+        raise ValueError("A service key should not be longer than 250 characters")
+    previous_deactivated_token = get_deactivated_token(db,token)
+    if previous_deactivated_token is not None:
+        return previous_deactivated_token
+    deactivated_token = DeactivatedToken(token=token)
+    return create(db,deactivated_token)
+
 # Read functions
 def get_utilisateur(db:Session,utilisateur_id: int):
     """
@@ -85,6 +100,18 @@ def get_access(db:Session,access_id: int):
         Find an access with its id
     """
     return get_entity_by_key(db,Access,access_id)
+
+def get_deactivated_token(db:Session,token: str):
+    """
+        Find a deactivated token instance with its token
+    """
+    return get_entity_by_key(db,DeactivatedToken,token)
+
+def get_deactivated_tokens(db:Session):
+    """
+        Find the deactivated tokens
+    """
+    return db.query(DeactivatedToken).all()
 
 # Update functions
 def update_utilisateur(db:Session,utilisateur_id: int, role: Role):
