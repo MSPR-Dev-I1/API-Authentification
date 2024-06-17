@@ -62,3 +62,11 @@ class Access(Base):
     id_access = Column(Integer, primary_key=True, index=True, autoincrement=True)
     cle_de_service = Column(String(250))
     roles = relationship("Role", secondary=association_table, back_populates="accesses")
+
+# pylint: disable=too-few-public-methods
+class DeactivatedToken(Base):
+    """
+        Entity for the deactivated token
+    """
+    __tablename__ = "Deactivated_Token"
+    token = Column(String(500), primary_key=True, index=True)

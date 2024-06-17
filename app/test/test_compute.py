@@ -1,7 +1,14 @@
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session, Session
-from app.database.premier_schema import Role, Utilisateur, UtilisateurClient, Access, Base
+from app.database.premier_schema import (
+    Role,
+    Utilisateur,
+    UtilisateurClient,
+    Access,
+    DeactivatedToken,
+    Base
+)
 from app.compute.compute import (
     create_utilisateur,
     create_utilisateur_client,
@@ -19,6 +26,9 @@ from app.compute.compute import (
     delete_utilisateur_client,
     delete_role,
     delete_access,
+    create_deactivated_token,
+    get_deactivated_token,
+    get_deactivated_tokens
 )
 
 def memory_db():
@@ -39,7 +49,12 @@ def set_default_entities(db:Session):
     role = create_role(db,"default",[access])
     utilisateur = create_utilisateur(db,role)
     utilisateur_client = create_utilisateur_client(db,utilisateur)
-    return {'access':access,'role':role,'utilisateur':utilisateur,'client':utilisateur_client}
+    deactivated_token = create_deactivated_token(db,"default")
+    return {'access':access,
+            'role':role,
+            'utilisateur':utilisateur,
+            'client':utilisateur_client,
+            'token':deactivated_token}
 
 def test_create_utilisateur():
     """
@@ -267,3 +282,29 @@ def test_delete_access():
     delete_access(db,access.id_access)
     access = get_access(db, access.id_access)
     assert access is None
+
+def test_create_deactivated_token():
+    """
+        Testing if we can create a deactivated token
+    """
+    db=memory_db()
+    deactivated_token=create_deactivated_token(db,"token")
+    assert isinstance(deactivated_token, DeactivatedToken)
+
+def test_get_deactivated_token():
+    """
+        Testing if we can find a deactivated token
+    """
+    db=memory_db()
+    defaut_entities = set_default_entities(db)
+    token = get_deactivated_token(db, "default")
+    assert token is defaut_entities['token']
+
+def test_get_deactivated_tokens():
+    """
+        Testing if we can find all the deactivated token
+    """
+    db=memory_db()
+    defaut_entities = set_default_entities(db)
+    tokens = get_deactivated_tokens(db)
+    assert (len(tokens) == 1) and (tokens[0] is defaut_entities['token'])
