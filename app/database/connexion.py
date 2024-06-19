@@ -10,7 +10,7 @@ database_username = os.getenv('DATABASE_USERNAME')
 database_password = os.getenv('DATABASE_PASSWORD')
 
 database_url = f"mysql+pymysql://{database_username}:" \
-    f"{database_password}@{database_host}/paye-ton-kawa"
+    f"{database_password}@{database_host}/paye-ton-kawa-Auth"
 
 engine = sqlalchemy.create_engine(database_url, echo=True)
 

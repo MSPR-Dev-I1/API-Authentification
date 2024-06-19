@@ -6,3 +6,9 @@ class ValidationRequest(BaseModel):
 
 class ValidationResponse(BaseModel):
     validation: bool
+
+class TokenRequest(BaseModel):
+    role: int
+
+class TokenResponse(BaseModel):
+    token: str
