@@ -20,15 +20,17 @@ async def hello_mate(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Connection failed: {e}") from e
 
 @router.post("/validation_token", response_model=ValidationResponse)
-async def hello_mate(request: ValidationRequest,db: Session = Depends(get_db)):
+async def validation_token(request: ValidationRequest,db: Session = Depends(get_db)):
     """
-        This API tests the connection with the database and returns a simple message.
+        This API recieve a token and a service key.
+        It validate if the token authorize that service key.
+        It returns the boolean result of the validation.
     """
     try:
         deactivated_tokens = get_deactivated_tokens(db)
         is_valid = verify_validity(request.token,deactivated_tokens)
         is_correct_access = verify_access(request.service_key,request.token)
-        response = ValidationResponse(is_valid and is_correct_access)
+        response = ValidationResponse(validation= is_valid and is_correct_access)
         return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"{e}") from e
