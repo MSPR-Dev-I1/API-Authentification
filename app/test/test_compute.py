@@ -1,13 +1,11 @@
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session, Session
+from sqlalchemy.orm import Session
 from app.database.premier_schema import (
     Role,
     Utilisateur,
     UtilisateurClient,
     Access,
-    DeactivatedToken,
-    Base
+    DeactivatedToken
 )
 from app.compute.compute import (
     create_utilisateur,
@@ -30,16 +28,7 @@ from app.compute.compute import (
     get_deactivated_token,
     get_deactivated_tokens
 )
-
-def memory_db():
-    """
-        Return a sqlalchemy session connected to an in memory sqlite
-    """
-    engine = create_engine('sqlite:///:memory:')
-    Base.metadata.create_all(engine)
-    session_factory = sessionmaker(bind=engine)
-    session = scoped_session(session_factory)
-    return session
+from app.test.inmemory_sqlite import memory_db
 
 def set_default_entities(db:Session):
     """
