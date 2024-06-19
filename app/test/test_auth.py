@@ -2,6 +2,7 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.database.connexion import get_db
 from app.test.inmemory_sqlite import memory_db
+from app.database.premier_schema import Role,Access
 
 client = TestClient(app)
 
@@ -94,3 +95,51 @@ def test_validation_token_exception(mocker):
 
     assert response.status_code == 500
     assert response.json() == {"detail": "Database error"}
+
+def test_deploy_token_role_not_found(mocker):
+    """
+        Testing if the token route return a 404 error when the role does not exist
+    """
+    mocker.patch("app.routers.auth.get_role", return_value=None)
+
+    response = client.post("/authentification/token", json={"role": 1})
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Cannot deliver any token for a role that does not exist."}
+
+def test_deploy_token_no_access(mocker):
+    """
+        Testing if the token route return a 404 error when the role has no accesses
+    """
+    role_mock = Role(nom="Test Role", accesses=[])
+    mocker.patch("app.routers.auth.get_role", return_value=role_mock)
+
+    response = client.post("/authentification/token", json={"role": 1})
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Cannot deliver any token for the role Test Role"}
+
+def test_deploy_token_success(mocker):
+    """
+        Testing if the token route can return a token
+    """
+    access_mock = Access(cle_de_service="service_key_1")
+    role_mock = Role(nom="Test Role", accesses=[access_mock])
+    mocker.patch("app.routers.auth.get_role", return_value=role_mock)
+    mocker.patch("app.routers.auth.encode_jwt", return_value="mock_token")
+
+    response = client.post("/authentification/token", json={"role": 1})
+
+    assert response.status_code == 200
+    assert response.json() == {"token": "mock_token"}
+
+def test_deploy_token_internal_server_error(mocker):
+    """
+        Testing if the token route can return a 500 during internal errors
+    """
+    mocker.patch("app.routers.auth.get_role", side_effect=Exception("DB Error"))
+
+    response = client.post("/authentification/token", json={"role": 1})
+
+    assert response.status_code == 500
+    assert response.json() == {"detail": "DB Error"}
