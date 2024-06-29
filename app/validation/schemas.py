@@ -8,7 +8,7 @@ class ValidationResponse(BaseModel):
     validation: bool
 
 class TokenRequest(BaseModel):
-    role: int
+    user: int
 
 class TokenResponse(BaseModel):
     token: str
