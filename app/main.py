@@ -11,6 +11,5 @@ origins = ["*"]
 
 app.include_router(auth.router, prefix="/authentification")
 
-
 if os.getenv("RUNNING_WITH_UVICORN"):
     setup_database()
