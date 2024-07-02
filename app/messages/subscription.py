@@ -50,7 +50,7 @@ def deconnexion(message: Message): # pragma: no cover
         message.nack()
 
 @asynccontextmanager
-async def lifespan(): # pragma: no cover
+async def lifespan(_): # pragma: no cover
     """
         Add subscription to new thread on startup
     """
