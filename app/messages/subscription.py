@@ -40,11 +40,12 @@ def deconnexion(message: Message): # pragma: no cover
     """
     try :
         print("Message Received: " + message.data.decode('utf-8'))
+        message.ack()
         data = json.loads(message.data.decode('utf-8'))
-        db = get_db()
+        db = next(get_db())
+        print(type(db))
         create_deactivated_token(db,token=data["token"])
         db.close()
-        message.ack()
     except Exception as e: # pylint: disable=broad-except
         print(f"The deconnexion threw an exception: {e}.")
         message.nack()
